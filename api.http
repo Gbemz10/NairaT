@@ -1,0 +1,64 @@
+@baseUrl = http://localhost:3000
+
+### SIGN UP
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user2@example.com",
+  "password": "mypassword"
+}
+
+###
+
+### LOGIN
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user2@example.com",
+  "password": "mypassword"
+}
+
+###
+
+### GET WALLET
+GET {{baseUrl}}/api/wallet
+
+###
+
+### DEPOSIT
+POST {{baseUrl}}/api/wallet/deposit
+Content-Type: application/json
+
+{
+  "amount": 1000,
+   "idempotency_key": "deposit_test_"
+}
+
+###
+
+### WITHDRAW
+POST {{baseUrl}}/api/wallet/withdraw
+Content-Type: application/json
+
+{
+  "amount": 1000,
+  "idempotency_key": "withdraw_test_3"
+}
+###
+
+### TRANSFER
+POST {{baseUrl}}/api/transactions/transfer
+Content-Type: application/json
+
+{
+  "receiver_id": 2,
+  "amount": 600,
+   "idempotency_key": "transfer_test_4"
+}
+
+###
+
+### TRANSACTION HISTORY
+GET {{baseUrl}}/api/transactions/history
