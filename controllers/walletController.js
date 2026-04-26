@@ -316,18 +316,13 @@ const convert = async (req, res) => {
     await client.query("COMMIT");
 
     // Fire blockchain mint/burn after DB commit (non-blocking)
-    const userResult = await pool.query(
-      "SELECT account_number FROM users WHERE id = $1",
-      [userId]
-    );
-    const userAddress = process.env.CONTRACT_ADDRESS; // use contract as proxy address for now
-
+    
     if (dir === "to_nairat") {
-      mintTokens(userResult.rows[0].account_number, parsedAmount)
+      mintTokens(process.env.DEPLOYER_ADDRESS, parsedAmount)
         .then((r) => console.log("Mint tx:", r.txHash))
         .catch((e) => console.error("Mint failed:", e.message));
     } else {
-      burnTokens(userResult.rows[0].account_number, parsedAmount)
+      burnTokens(process.env.DEPLOYER_ADDRESS, parsedAmount)
         .then((r) => console.log("Burn tx:", r.txHash))
         .catch((e) => console.error("Burn failed:", e.message));
     }
