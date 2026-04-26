@@ -17,6 +17,7 @@ const pinRoutes = require("./routes/pinRoutes");
 const authenticate = require("./middleware/authMiddleware");
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const budgetRoutes = require('./routes/budgetRoutes');
+const otpRoutes = require("./routes/otpRoutes");
 
 const swaggerOptions = {
   definition: {
@@ -49,6 +50,7 @@ app.use(cookieParser());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/otp", otpRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/users", userRoutes);
