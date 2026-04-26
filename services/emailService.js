@@ -1,6 +1,5 @@
 const { Resend } = require("resend");
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 const buildEmailHtml = (otp, purpose) => {
   const heading =
@@ -119,7 +118,7 @@ async function sendOTP(toEmail, otp, purpose = "verification") {
   };
 
   try {
-    await resend.emails.send({
+   await getResend().emails.send({
       from: "NairaT <onboarding@resend.dev>",
       to: toEmail,
       subject: subjects[purpose] || subjects.verification,
