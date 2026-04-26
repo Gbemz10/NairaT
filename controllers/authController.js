@@ -75,9 +75,9 @@ while (exists) {
     const userId = userResult.rows[0].id;
 
     await client.query(
-      "INSERT INTO wallets (user_id, balance_nairat) VALUES ($1,0)",
-      [userId]
-    );
+  "INSERT INTO wallets (user_id, balance_ngn, balance_nairat) VALUES ($1,0,0)",
+  [userId]
+);
 
     await client.query("COMMIT");
 
