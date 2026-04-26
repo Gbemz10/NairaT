@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const authenticate = require("../middleware/authMiddleware"); 
+const authenticate = require("../middleware/authMiddleware");
 
 const {
   setBudget,
-  deleteBudget,
   getBudgets,
+  getOverrideStatus,
 } = require("../controllers/transactionController");
 
-router.post("/set", authenticate, setBudget);        
-router.delete("/:period", authenticate, deleteBudget); 
-router.get("/", authenticate, getBudgets);          
+router.post("/set", authenticate, setBudget);
+router.get("/", authenticate, getBudgets);
+router.get("/overrides", authenticate, getOverrideStatus);
 
 module.exports = router;

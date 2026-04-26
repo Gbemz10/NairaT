@@ -7,6 +7,7 @@ const {
   getWallet,
   deposit,
   withdraw,
+  convert,
   transfer,
 } = require("../controllers/walletController");
 
@@ -123,5 +124,43 @@ router.post("/withdraw", authenticate, withdraw);
  *         description: Transfer successful
  */
 router.post("/transfer", authenticate, transfer);
+
+/**
+ * @swagger
+ * /api/wallet/convert:
+ *   post:
+ *     summary: Convert between NGN and NairaT (1:1 rate)
+ *     tags: [Wallet]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *               - pin
+ *               - idempotency_key
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 5000
+ *               pin:
+ *                 type: string
+ *                 example: "1234"
+ *               direction:
+ *                 type: string
+ *                 enum: [to_nairat, to_ngn]
+ *                 example: to_nairat
+ *               idempotency_key:
+ *                 type: string
+ *                 example: convert_test_1
+ *     responses:
+ *       200:
+ *         description: Conversion successful
+ */
+router.post("/convert", authenticate, convert);
 
 module.exports = router;
