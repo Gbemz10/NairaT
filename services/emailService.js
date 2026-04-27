@@ -1,18 +1,6 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const getTransporter = () =>
-  nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-    tls: {
-      family: 4, // force IPv4
-    },
-  });
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 const buildEmailHtml = (otp, purpose) => {
   const heading =
@@ -114,8 +102,8 @@ async function sendOTP(toEmail, otp, purpose = "verification") {
   };
 
   try {
-    await getTransporter().sendMail({
-      from: `"NairaT" <${process.env.SENDER_EMAIL}>`,
+    await getResend().emails.send({
+      from: "NairaT <noreply@nairat.site>",
       to: toEmail,
       subject: subjects[purpose] || subjects.verification,
       html: buildEmailHtml(otp, purpose),
