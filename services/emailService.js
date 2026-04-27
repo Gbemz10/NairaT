@@ -1,5 +1,13 @@
-const { Resend } = require("resend");
-const getResend = () => new Resend(process.env.RESEND_API_KEY);
+const brevo = require("@getbrevo/brevo");
+
+const getApiInstance = () => {
+  const apiInstance = new brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(
+    brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
+  return apiInstance;
+};
 
 const buildEmailHtml = (otp, purpose) => {
   const heading =
@@ -48,7 +56,6 @@ const buildEmailHtml = (otp, purpose) => {
               <h1 style="color:#3E2723;font-size:24px;font-weight:600;margin:0 0 12px;letter-spacing:-0.3px;">${heading}</h1>
               <p style="color:#8D7B6E;font-size:14px;line-height:1.6;margin:0 auto 36px;max-width:380px;">${subheading}</p>
 
-              <!-- OTP BOX -->
               <table align="center" cellpadding="0" cellspacing="0" style="background:#FAF5EE;border:1.5px solid #E8DFD3;border-radius:14px;margin-bottom:28px;">
                 <tr>
                   <td style="padding:28px 36px;">
@@ -57,7 +64,6 @@ const buildEmailHtml = (otp, purpose) => {
                 </tr>
               </table>
 
-              <!-- EXPIRY PILL -->
               <table align="center" cellpadding="0" cellspacing="0" style="background:rgba(184,115,51,0.1);border-radius:100px;margin-bottom:8px;">
                 <tr>
                   <td style="padding:6px 14px;">
@@ -68,14 +74,12 @@ const buildEmailHtml = (otp, purpose) => {
             </td>
           </tr>
 
-          <!-- DIVIDER -->
           <tr>
             <td style="padding:0 40px;">
               <div style="border-top:1px solid #E8DFD3;"></div>
             </td>
           </tr>
 
-          <!-- SECURITY NOTE -->
           <tr>
             <td style="padding:24px 40px;">
               <table cellpadding="0" cellspacing="0" width="100%">
@@ -94,7 +98,6 @@ const buildEmailHtml = (otp, purpose) => {
             </td>
           </tr>
 
-          <!-- FOOTER -->
           <tr>
             <td style="background:#FAF5EE;padding:24px 40px;text-align:center;border-top:1px solid #E8DFD3;">
               <p style="color:#8D7B6E;font-size:12px;margin:0 0 4px;font-weight:500;">Naira<span style="color:#B87333;font-weight:700;">T</span> — Tokenized money for the way you spend.</p>
@@ -118,15 +121,19 @@ async function sendOTP(toEmail, otp, purpose = "verification") {
   };
 
   try {
-   await getResend().emails.send({
-      from: "NairaT <onboarding@resend.dev>",
-      to: toEmail,
-      subject: subjects[purpose] || subjects.verification,
-      html: buildEmailHtml(otp, purpose),
-    });
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = subjects[purpose] || subjects.verification;
+    sendSmtpEmail.htmlContent = buildEmailHtml(otp, purpose);
+    sendSmtpEmail.sender = {
+      name: "NairaT",
+      email: process.env.SENDER_EMAIL,
+    };
+    sendSmtpEmail.to = [{ email: toEmail }];
+
+    await getApiInstance().sendTransacEmail(sendSmtpEmail);
     return { success: true };
   } catch (err) {
-    console.error("Email error:", err);
+    console.error("Email error:", err.message || err);
     return { success: false, error: err.message };
   }
 }
