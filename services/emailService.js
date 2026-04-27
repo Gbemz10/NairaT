@@ -1,13 +1,13 @@
-const brevo = require("@getbrevo/brevo");
+const nodemailer = require("nodemailer");
 
-const getApiInstance = () => {
-  const apiInstance = new brevo.TransactionalEmailsApi();
-  apiInstance.setApiKey(
-    brevo.TransactionalEmailsApiApiKeys.apiKey,
-    process.env.BREVO_API_KEY
-  );
-  return apiInstance;
-};
+const getTransporter = () =>
+  nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
 
 const buildEmailHtml = (otp, purpose) => {
   const heading =
@@ -29,11 +29,7 @@ const buildEmailHtml = (otp, purpose) => {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#FBF8F3;">
     <tr>
       <td align="center" style="padding:48px 20px;">
-
-        <!-- CARD -->
         <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #E8DFD3;box-shadow:0 8px 24px rgba(93,64,55,0.08);">
-
-          <!-- HEADER -->
           <tr>
             <td style="background:linear-gradient(135deg,#5D4037 0%,#3E2723 60%,rgba(184,115,51,0.6) 100%);padding:40px 32px;text-align:center;">
               <table align="center" cellpadding="0" cellspacing="0">
@@ -49,13 +45,10 @@ const buildEmailHtml = (otp, purpose) => {
               <p style="color:rgba(255,255,255,0.75);font-size:11px;font-weight:500;letter-spacing:2.5px;margin:18px 0 0;">PROGRAMMABLE MONEY</p>
             </td>
           </tr>
-
-          <!-- BODY -->
           <tr>
             <td style="padding:48px 40px 24px;text-align:center;">
               <h1 style="color:#3E2723;font-size:24px;font-weight:600;margin:0 0 12px;letter-spacing:-0.3px;">${heading}</h1>
               <p style="color:#8D7B6E;font-size:14px;line-height:1.6;margin:0 auto 36px;max-width:380px;">${subheading}</p>
-
               <table align="center" cellpadding="0" cellspacing="0" style="background:#FAF5EE;border:1.5px solid #E8DFD3;border-radius:14px;margin-bottom:28px;">
                 <tr>
                   <td style="padding:28px 36px;">
@@ -63,7 +56,6 @@ const buildEmailHtml = (otp, purpose) => {
                   </td>
                 </tr>
               </table>
-
               <table align="center" cellpadding="0" cellspacing="0" style="background:rgba(184,115,51,0.1);border-radius:100px;margin-bottom:8px;">
                 <tr>
                   <td style="padding:6px 14px;">
@@ -73,13 +65,11 @@ const buildEmailHtml = (otp, purpose) => {
               </table>
             </td>
           </tr>
-
           <tr>
             <td style="padding:0 40px;">
               <div style="border-top:1px solid #E8DFD3;"></div>
             </td>
           </tr>
-
           <tr>
             <td style="padding:24px 40px;">
               <table cellpadding="0" cellspacing="0" width="100%">
@@ -97,7 +87,6 @@ const buildEmailHtml = (otp, purpose) => {
               </table>
             </td>
           </tr>
-
           <tr>
             <td style="background:#FAF5EE;padding:24px 40px;text-align:center;border-top:1px solid #E8DFD3;">
               <p style="color:#8D7B6E;font-size:12px;margin:0 0 4px;font-weight:500;">Naira<span style="color:#B87333;font-weight:700;">T</span> — Tokenized money for the way you spend.</p>
@@ -105,7 +94,6 @@ const buildEmailHtml = (otp, purpose) => {
             </td>
           </tr>
         </table>
-
       </td>
     </tr>
   </table>
@@ -121,15 +109,12 @@ async function sendOTP(toEmail, otp, purpose = "verification") {
   };
 
   try {
-    const apiInstance = getApiInstance();
-    const sendSmtpEmail = {
-      sender: { name: "NairaT", email: process.env.SENDER_EMAIL },
-      to: [{ email: toEmail }],
+    await getTransporter().sendMail({
+      from: `"NairaT" <${process.env.SENDER_EMAIL}>`,
+      to: toEmail,
       subject: subjects[purpose] || subjects.verification,
-      htmlContent: buildEmailHtml(otp, purpose),
-    };
-
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+      html: buildEmailHtml(otp, purpose),
+    });
     return { success: true };
   } catch (err) {
     console.error("Email error:", err.message || err);
