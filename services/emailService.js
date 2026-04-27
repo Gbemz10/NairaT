@@ -103,7 +103,7 @@ async function sendOTP(toEmail, otp, purpose = "verification") {
 
   try {
     await getResend().emails.send({
-      from: "NairaT <noreply@nairat.site>",
+      from: "NairaT <hello@nairat.site>",
       to: toEmail,
       subject: subjects[purpose] || subjects.verification,
       html: buildEmailHtml(otp, purpose),
