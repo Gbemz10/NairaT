@@ -121,16 +121,15 @@ async function sendOTP(toEmail, otp, purpose = "verification") {
   };
 
   try {
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = subjects[purpose] || subjects.verification;
-    sendSmtpEmail.htmlContent = buildEmailHtml(otp, purpose);
-    sendSmtpEmail.sender = {
-      name: "NairaT",
-      email: process.env.SENDER_EMAIL,
+    const apiInstance = getApiInstance();
+    const sendSmtpEmail = {
+      sender: { name: "NairaT", email: process.env.SENDER_EMAIL },
+      to: [{ email: toEmail }],
+      subject: subjects[purpose] || subjects.verification,
+      htmlContent: buildEmailHtml(otp, purpose),
     };
-    sendSmtpEmail.to = [{ email: toEmail }];
 
-    await getApiInstance().sendTransacEmail(sendSmtpEmail);
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
     return { success: true };
   } catch (err) {
     console.error("Email error:", err.message || err);
